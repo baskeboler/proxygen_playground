@@ -42,9 +42,9 @@ public:
 
   RequestHandler *onRequest(RequestHandler *,
                             HTTPMessage *m) noexcept override {
-    LOG(INFO) << "got request" << m << std::endl;
+//    LOG(INFO) << "got request" << m << std::endl;
     std::string path = m->getPath();
-    LOG(INFO) << "path is " << path << std::endl;
+    LOG(INFO) << "got request for " << path << std::endl;
 
     std::vector<std::string> parts;
     folly::split("/", path, parts, true);
@@ -67,7 +67,7 @@ private:
 };
 
 int main(int argc, char *argv[]) {
-  //gflags::ParseCommandLineFlags(&argc, &argv, true);
+  //gflags::ParseCommandLinelags(&argc, &argv, true);
   //google::InitGoogleLogging(argv[0]);
   //google::InstallFailureSignalHandler();
   folly::init(&argc, &argv);

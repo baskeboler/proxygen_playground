@@ -59,6 +59,8 @@ void ServiceRegistryHandler::onEOM() noexcept {
 void ServiceRegistryHandler::onUpgrade(
     proxygen::UpgradeProtocol proto) noexcept {}
 
-void ServiceRegistryHandler::requestComplete() noexcept {}
+void ServiceRegistryHandler::requestComplete() noexcept { delete this; }
 
-void ServiceRegistryHandler::onError(proxygen::ProxygenError err) noexcept {}
+void ServiceRegistryHandler::onError(proxygen::ProxygenError err) noexcept {
+  delete this;
+}
