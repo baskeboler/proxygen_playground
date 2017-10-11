@@ -1,7 +1,7 @@
 #include "myhandler.h"
 #include "timehandler.h"
-#include <folly/String.h>
 #include <folly/Memory.h>
+#include <folly/String.h>
 #include <folly/io/async/EventBaseManager.h>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
@@ -11,8 +11,8 @@
 //#include "EchoStats.h"
 #include "serviceregistry.h"
 #include "serviceregistryhandler.h"
-#include <string>
 #include <folly/init/Init.h>
+#include <string>
 using namespace EchoService;
 using namespace proxygen;
 
@@ -31,18 +31,12 @@ DEFINE_int32(threads, 0, "Number of threads to listen on. Numbers <= 0 "
 
 class EchoHandlerFactory : public RequestHandlerFactory {
 public:
-  void onServerStart(folly::EventBase * /*evb*/) noexcept override {
-    //    stats_.reset(new EchoStats);
-    //_registry.reset(new ServiceRegistry);
-  }
+  void onServerStart(folly::EventBase * /*evb*/) noexcept override {}
 
-  void onServerStop() noexcept override {
-    //    stats_.reset();
-  }
+  void onServerStop() noexcept override {}
 
   RequestHandler *onRequest(RequestHandler *,
                             HTTPMessage *m) noexcept override {
-//    LOG(INFO) << "got request" << m << std::endl;
     std::string path = m->getPath();
     LOG(INFO) << "got request for " << path << std::endl;
 
@@ -60,16 +54,10 @@ public:
       return new EchoHandler();
     }
   }
-
-private:
-  // folly::ThreadLocalPtr<EchoStats> stats_;
-  folly::ThreadLocalPtr<ServiceRegistry> _registry;
+  virtual ~EchoHandlerFactory() {}
 };
 
 int main(int argc, char *argv[]) {
-  //gflags::ParseCommandLinelags(&argc, &argv, true);
-  //google::InitGoogleLogging(argv[0]);
-  //google::InstallFailureSignalHandler();
   folly::init(&argc, &argv);
   LOG(INFO) << "Initializing server";
   std::vector<HTTPServer::IPConfig> IPs = {

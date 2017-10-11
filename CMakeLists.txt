@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(httpservtest)
+project(httpservtest CXX)
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_CXX_COMPILER clang++)
 INCLUDE_DIRECTORIES(SYSTEM /usr/local/include )
 LINK_DIRECTORIES(/usr/local/lib)
 FIND_LIBRARy(FOLLY folly)
@@ -30,10 +30,10 @@ set(MYLIBS_TEST
     ${GTEST}
     ${GTEST_MAIN}
     ${MYLIBS})
-
 set(SRC myhandler.cpp timehandler.cpp servicenode.cpp serviceregistry.cpp serviceregistryhandler.cpp)
-set(TEST_SRC ${SRC} test_main.cpp servicenodetest.cpp)
-add_executable(${PROJECT_NAME} main.cpp ${SRC})
+set(TEST_SRC test_main.cpp servicenodetest.cpp)
+add_library(TESTLIB  SHARED ${SRC})
+add_executable(${PROJECT_NAME} main.cpp )
 add_executable(${PROJECT_NAME}_test ${TEST_SRC})
-target_link_libraries(${PROJECT_NAME} ${MYLIBS})
-target_link_libraries(${PROJECT_NAME}_test ${MYLIBS_TEST})
+target_link_libraries(${PROJECT_NAME} TESTLIB ${MYLIBS})
+target_link_libraries(${PROJECT_NAME}_test TESTLIB ${MYLIBS_TEST})

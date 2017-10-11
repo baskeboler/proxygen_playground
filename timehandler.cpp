@@ -3,6 +3,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <folly/io/IOBuf.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
+#include <folly/dynamic.h>
 
 TimeHandler::TimeHandler() {}
 
@@ -16,9 +17,12 @@ void TimeHandler::onEOM() noexcept {
   std::stringstream ss;
   ss << d;
   // downstream_->
+  folly::dynamic jsonObj = folly::dynamic::object("date", ss.str());
+  ss.str("");
+  ss << jsonObj;
   proxygen::ResponseBuilder(downstream_)
       .status(200, "OK")
-      .body(folly::IOBuf::copyBuffer(ss.str()))
+      .body(ss.str())
       .sendWithEOM();
 }
 

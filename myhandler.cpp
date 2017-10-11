@@ -28,7 +28,6 @@ void EchoHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
   LOG(INFO) << headers->getPath() << std::endl;
   headers->getHeaders().forEach(
       [this](const string &header, const string &value) {
-        std::cout << header << ": " << value << std::endl;
         string s = header + ": " + value + "\n";
         auto a = IOBuf::copyBuffer(s);
         if (body_) {
