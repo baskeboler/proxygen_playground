@@ -1,35 +1,36 @@
 #include "serviceregistryhandler.h"
-#include <proxygen/httpserver/ResponseBuilder.h>
 #include <folly/FBString.h>
 #include <folly/dynamic.h>
+#include <proxygen/httpserver/ResponseBuilder.h>
 #include <sstream>
 
-ServiceRegistryHandler::ServiceRegistryHandler(ServiceRegistry *registry)
-    : _registry(registry) {}
+ServiceRegistryHandler::ServiceRegistryHandler() {
+  _registry = ServiceRegistry::getInstance();
+}
 
 void ServiceRegistryHandler::onRequest(
     std::unique_ptr<proxygen::HTTPMessage> message) noexcept {
   _method = message->getMethodString();
   if (_method == "POST") {
   } else if (_method == "GET") {
-      std::string path = message->getPath();
-      u_long p = path.find_last_of("/");
-      std::string name = path.substr(p+1 );
-      LOG(INFO) << "name is " << name;
-      auto nodes = _registry->getServiceNodes(name);
-      folly::dynamic res = folly::dynamic::array();
-      for (auto &n: nodes) {
-          res.push_back(n->to_dynamic());
-      }
+    std::string path = message->getPath();
+    u_long p = path.find_last_of("/");
+    std::string name = path.substr(p + 1);
+    LOG(INFO) << "name is " << name;
+    auto nodes = _registry->getServiceNodes(name);
+    folly::dynamic res = folly::dynamic::array();
+    for (auto &n : nodes) {
+      res.push_back(n->to_dynamic());
+    }
 
-      std::stringstream ss;
-      ss << res;
-      std::string res_str = ss.str();
-      std::unique_ptr<folly::IOBuf> buffer = folly::IOBuf::copyBuffer(res_str);
-      proxygen::ResponseBuilder(downstream_)
-              .status(200, "OK")
-              .body(std::move(buffer))
-              .sendWithEOM();
+    std::stringstream ss;
+    ss << res;
+    std::string res_str = ss.str();
+    std::unique_ptr<folly::IOBuf> buffer = folly::IOBuf::copyBuffer(res_str);
+    proxygen::ResponseBuilder(downstream_)
+        .status(200, "OK")
+        .body(std::move(buffer))
+        .sendWithEOM();
   }
 }
 

@@ -3,12 +3,14 @@
 
 #include <proxygen/httpserver/RequestHandler.h>
 #include "serviceregistry.h"
+#include <memory>
 
+using std::shared_ptr;
 using proxygen::RequestHandler;
 
 class ServiceRegistryHandler : public RequestHandler {
 public:
-  ServiceRegistryHandler(ServiceRegistry* registry);
+  ServiceRegistryHandler();
 
   void
   onRequest(std::unique_ptr<proxygen::HTTPMessage> headers) noexcept override;
@@ -23,7 +25,7 @@ public:
 
   void onError(proxygen::ProxygenError err) noexcept override;
 private:
-  ServiceRegistry *_registry;
+  shared_ptr<ServiceRegistry> _registry;
   std::unique_ptr<folly::IOBuf> _body;
   std::string _method;
 };

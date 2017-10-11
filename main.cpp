@@ -1,6 +1,6 @@
 #include "myhandler.h"
 #include "timehandler.h"
-#include <folly/FBString.h>
+#include <folly/String.h>
 #include <folly/Memory.h>
 #include <folly/io/async/EventBaseManager.h>
 #include <gflags/gflags.h>
@@ -12,7 +12,7 @@
 #include "serviceregistry.h"
 #include "serviceregistryhandler.h"
 #include <string>
-
+#include <folly/init/Init.h>
 using namespace EchoService;
 using namespace proxygen;
 
@@ -26,14 +26,14 @@ DEFINE_int32(http_port, 11000, "Port to listen on with HTTP protocol");
 DEFINE_int32(spdy_port, 11001, "Port to listen on with SPDY protocol");
 DEFINE_int32(h2_port, 11002, "Port to listen on with HTTP/2 protocol");
 DEFINE_string(ip, "localhost", "IP/Hostname to bind to");
-DEFINE_int32(threads, 1, "Number of threads to listen on. Numbers <= 0 "
+DEFINE_int32(threads, 0, "Number of threads to listen on. Numbers <= 0 "
                          "will use the number of cores on this machine.");
 
 class EchoHandlerFactory : public RequestHandlerFactory {
 public:
   void onServerStart(folly::EventBase * /*evb*/) noexcept override {
     //    stats_.reset(new EchoStats);
-    _registry.reset(new ServiceRegistry);
+    //_registry.reset(new ServiceRegistry);
   }
 
   void onServerStop() noexcept override {
@@ -42,14 +42,19 @@ public:
 
   RequestHandler *onRequest(RequestHandler *,
                             HTTPMessage *m) noexcept override {
-    std::cout << "got request" << m << std::endl;
+    LOG(INFO) << "got request" << m << std::endl;
     std::string path = m->getPath();
-    std::cout << "path is " << path << std::endl;
-    if (path == "/time") {
-      std::cout << "Time request" << std::endl;
+    LOG(INFO) << "path is " << path << std::endl;
+
+    std::vector<std::string> parts;
+    folly::split("/", path, parts, true);
+    auto first_part = parts.begin();
+    LOG(INFO) << "first part is " << *first_part;
+    if (*first_part == "time") {
+      LOG(INFO) << "Time request" << std::endl;
       return new TimeHandler();
-    } else if (path.find("/registry") == 0) {
-      return new ServiceRegistryHandler(_registry.get());
+    } else if (*first_part == "registry") {
+      return new ServiceRegistryHandler();
     } else {
 
       return new EchoHandler();
@@ -62,9 +67,10 @@ private:
 };
 
 int main(int argc, char *argv[]) {
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
-  google::InitGoogleLogging(argv[0]);
-  google::InstallFailureSignalHandler();
+  //gflags::ParseCommandLineFlags(&argc, &argv, true);
+  //google::InitGoogleLogging(argv[0]);
+  //google::InstallFailureSignalHandler();
+  folly::init(&argc, &argv);
   LOG(INFO) << "Initializing server";
   std::vector<HTTPServer::IPConfig> IPs = {
       {SocketAddress(FLAGS_ip, FLAGS_http_port, true), Protocol::HTTP},

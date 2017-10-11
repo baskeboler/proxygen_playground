@@ -1,6 +1,13 @@
 #include "serviceregistry.h"
 #include <algorithm>
 #include <glog/logging.h>
+#include <folly/String.h>
+#include <folly/Singleton.h>
+
+namespace {
+    struct ServiceRegistryTag {};
+}
+static folly::Singleton<ServiceRegistry, ServiceRegistryTag> the_instance;
 ServiceRegistry::ServiceRegistry() {
   LOG(INFO) << "Initializing Service Registry";
 }
@@ -33,4 +40,9 @@ void ServiceRegistry::registerServiceNode(const std::string &serviceName,
       map[serviceName] = v;
     }
   });
+}
+
+shared_ptr<ServiceRegistry> ServiceRegistry::getInstance()
+{
+    return the_instance.try_get();
 }

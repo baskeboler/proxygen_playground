@@ -21,6 +21,7 @@ public:
   vector<ServiceNodePtr> getServiceNodes(const string &serviceName);
   void registerServiceNode(const string &serviceName, const string &url);
 
+  static shared_ptr<ServiceRegistry> getInstance();
 private:
   Synchronized<map<string, vector<ServiceNodePtr>>> _serviceMap;
 };
